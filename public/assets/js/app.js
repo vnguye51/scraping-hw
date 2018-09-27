@@ -78,6 +78,26 @@ $('#clear').on('click',function(){
   })
 })
 
-$('#saved').on('click',function(){
-  location.assign('/saved')
+$(document).on('click','.save',function(){
+  console.log('save')
+  var thisId = $(this).attr('data-id')
+  console.log(thisId)
+  $.ajax({
+    url: '/save/'+thisId,
+    type: 'POST',
+    success: function(){
+      location.reload()
+    }
+  })
+})
+$(document).on('click','.unsave',function(){
+  console.log('unsave')
+  var thisId = $(this).attr('data-id')
+  $.ajax({
+    url: '/unsave/'+thisId,
+    type: 'POST',
+    success: function(){
+      location.reload()
+    }
+  })
 })

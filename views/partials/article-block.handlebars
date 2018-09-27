@@ -4,4 +4,9 @@
         {{this.title}}
     </h3>
     <div><a href={{this.link}}>{{this.link}}</a></div>
+    {{#if this.saved}}
+    <button class='unsave' data-id={{this._id}}>UNSAVE</button>
+    {{else}}
+    <button class='save' data-id={{this._id}}>SAVE</button>
+    {{/if}}
 </li>

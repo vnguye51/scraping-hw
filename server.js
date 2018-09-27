@@ -32,7 +32,7 @@ mongoose.connect("mongodb://localhost/week18Populater", { useNewUrlParser: true 
 
 // A GET route for scraping the echoJS website
 app.delete('/drop', function(req,res){
-  db.Article.deleteMany({})
+  db.Article.deleteMany({saved: undefined})
     .then(function(dbArticle) {
     })
     .catch(function(err) {
@@ -52,23 +52,23 @@ app.delete('/drop', function(req,res){
 
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with request
-  axios.get("http://www.echojs.com/").then(function(response) {
+  axios.get("https://www.reddit.com/r/news/").then(function(response) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(response.data);
 
     // Now, we grab every h2 within an article tag, and do the following:
-    $("article h2").each(function(i, element) {
+    $("span a").each(function(i, element) {
       // Save an empty result object
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children("a")
+        .children("h2")
         .text();
       result.link = $(this)
-        .children("a")
         .attr("href");
 
+      
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
         .then(function(dbArticle) {
@@ -76,6 +76,7 @@ app.get("/scrape", function(req, res) {
           console.log(dbArticle);
         })
         .catch(function(err) {
+          console.log(err)
           // If an error occurred, send it to the client
           return res.json(err);
         });
@@ -86,16 +87,17 @@ app.get("/scrape", function(req, res) {
   });
 });
 
-app.get('/saved',function(req,res){
-  db.Article.find({saved: true})
+app.post('/save/:id',function(req,res){
+  console.log('a')
+  db.Article.findOneAndUpdate({_id:req.params.id},{$set: {saved: true}},{new:true})
     .then(function(dbArticle){
-      console.log('a')
-      res.sendFile(__dirname + '/public/saved.html')
+      console.log(dbArticle)
+      res.json(dbArticle);
     })
 })
 
-app.post('/saved/:id',function(req,res){
-  db.Article.findOne({_id:req.params.id, saved: true})
+app.post('/unsave/:id',function(req,res){
+  db.Article.findOneAndUpdate({_id:req.params.id},{$set: {saved: undefined}},{new:true})
     .then(function(dbArticle){
       res.json(dbArticle);
     })
@@ -107,7 +109,6 @@ app.get("/", function(req, res) {
   db.Article.find({})
     .then(function(dbArticle) {
       // If we were able to successfully find Articles, send them back to the client\
-      console.log(dbArticle)
       res.render('index',{dbArticle: dbArticle});
     })
     .catch(function(err) {

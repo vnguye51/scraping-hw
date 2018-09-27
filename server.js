@@ -27,6 +27,7 @@ app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 // Connect to the Mongo DB
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+console.log(MONGODB_URI)
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URI);
 
@@ -108,7 +109,7 @@ app.post('/unsave/:id',function(req,res){
 })
 
 // Route for getting all Articles from the db
-app.get("/", function(req, res) {
+app.get("*", function(req, res) {
   // Grab every document in the Articles collection
   db.Article.find({})
     .then(function(dbArticle) {

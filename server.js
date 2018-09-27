@@ -44,7 +44,7 @@ app.delete('/drop', function(req,res){
       // If an error occurred, send it to the client
       res.json(err);
     });
-  db.Note.deleteMany({})
+  db.Note.deleteMany({saved: undefined})
     .then(function(dbArticle) {
       res.json('success!')
     })
@@ -97,16 +97,24 @@ app.post('/save/:id',function(req,res){
   db.Article.findOneAndUpdate({_id:req.params.id},{$set: {saved: true}},{new:true})
     .then(function(dbArticle){
       console.log(dbArticle)
-      res.json(dbArticle);
+      db.Note.findOneAndUpdate({_id:dbArticle.note},{$set: {saved: true}},{new:true})
+      .then(function(dbNote){
+        res.json(dbArticle)
+        console.log(dbNote)
+      })
     })
+  
 })
 
 app.post('/unsave/:id',function(req,res){
   db.Article.findOneAndUpdate({_id:req.params.id},{$set: {saved: undefined}},{new:true})
     .then(function(dbArticle){
-      res.json(dbArticle);
+      db.Note.findOneAndUpdate({id:dbArticle.note},{$set: {saved: undefined}})
+      .then(function(dbNote){
+        res.json(dbArticle)
+      })
     })
-})
+  })
 
 // Route for grabbing a specific Article by id, populate it with it's note
 app.get("/articles/:id", function(req, res) {

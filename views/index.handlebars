@@ -1,0 +1,8 @@
+<button id='clear'>Clear Articles</button>
+<button id='scrape'>Scrape Articles</button>
+<button id='saved'>Saved</button>
+<ul>
+    {{#each dbArticle}}
+        {{>article-block}}
+    {{/each}}
+</ul>
